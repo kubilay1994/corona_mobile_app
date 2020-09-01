@@ -48,9 +48,10 @@ class _UpdateTimelineFormState extends State<UpdateTimelineForm> {
       firstDate: DateTime(2019, 11),
       lastDate: DateTime.now(),
     );
+
     if (picked != null) {
       setState(() {
-        _formData["_selectedDate"] = picked;
+        _formData["selectedDate"] = picked;
       });
     }
   }
@@ -86,12 +87,18 @@ class _UpdateTimelineFormState extends State<UpdateTimelineForm> {
         return authProvider.logout();
       }
 
+      final responseBody = jsonDecode(response.body);
+
       var newRecord = CoronaHistoricalRecord.fromJson(
-        jsonDecode(response.body)["updatedDocument"],
+        responseBody["updatedDocument"],
       );
+
+      var newWorldRecord =
+          CoronaHistoricalRecord.fromJson(responseBody["worldRecord"]);
       var coronaProvider = context.read<CoronaHistoricalRecords>();
 
       coronaProvider.updateRecord(widget.id, newRecord);
+      coronaProvider.seTworldRecord(newWorldRecord);
 
       Navigator.pop(context, "Timeline Updated Successfully");
     } catch (e) {
@@ -129,7 +136,7 @@ class _UpdateTimelineFormState extends State<UpdateTimelineForm> {
                       ),
                     ),
                     FlatButton(
-                      onPressed: selectDate,
+                      onPressed: () => selectDate(),
                       child: const Text("Select Date"),
                       // textColor: Theme.of(context).primaryColorDark,
                     )

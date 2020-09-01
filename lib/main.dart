@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
             title: 'Flutter Demo',
             theme: ThemeData(
               primarySwatch: Colors.pink,
-              accentColor: Colors.limeAccent,
+              accentColor: Colors.amberAccent,
               visualDensity: VisualDensity.adaptivePlatformDensity,
               brightness: value.darkMode ? Brightness.dark : Brightness.light,
             ),

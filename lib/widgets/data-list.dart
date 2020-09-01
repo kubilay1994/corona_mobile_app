@@ -24,11 +24,12 @@ class DataList<T> extends StatelessWidget {
               children: headerData
                   .map(
                     (title) => Expanded(
-                        child: Text(
-                      title,
-                      style: _Styles.listHeader,
-                      textAlign: TextAlign.center,
-                    )),
+                      child: Text(
+                        title,
+                        style: _Styles.listHeader,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
                   )
                   .toList(),
             ),
@@ -40,7 +41,9 @@ class DataList<T> extends StatelessWidget {
                 return Card(
                   margin: EdgeInsets.symmetric(vertical: 5),
                   child: ListTile(
-                    onTap: onItemTabbed != null ? () => onItemTabbed(data[index]) : null,
+                    onTap: onItemTabbed != null
+                        ? () => onItemTabbed(data[index])
+                        : null,
                     title: Row(
                       children: rowBuilder(data, index),
                     ),

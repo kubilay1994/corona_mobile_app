@@ -18,9 +18,10 @@ class PieChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final data = context
-        .select((CoronaHistoricalRecords value) => value.latestRecords)
-        .sublist(0, 5);
+    var data =
+        context.select((CoronaHistoricalRecords value) => value.latestRecords);
+
+    if (data.length > 5) data = data.sublist(0, 5);
 
     final worldRecord =
         context.select((CoronaHistoricalRecords value) => value.worldRecord);
@@ -33,8 +34,10 @@ class PieChart extends StatelessWidget {
       points: null,
       timeline: TimelineRecord(
         date: null,
-        cases: worldRecord.timeline[0].cases -
-            data.fold(0, (curr, next) => curr + next.timeline.cases),
+        cases: worldRecord != null
+            ? worldRecord.timeline[0].cases -
+                data.fold(0, (curr, next) => curr + next.timeline.cases)
+            : null,
         deaths: null,
         recovered: null,
       ),
@@ -42,32 +45,36 @@ class PieChart extends StatelessWidget {
 
     data.insert(0, other);
 
-    return charts.PieChart(
-      [
-        charts.Series<CoronaRecord, String>(
-          data: data,
-          id: "Cases",
-          domainFn: (datum, _) => datum.country,
-          measureFn: (datum, _) => datum.timeline.cases,
-          // colorFn: (_, index) => colors[index],
-        )
-      ],
-      animate: true,
-      behaviors: [
-        charts.DatumLegend(
-          position: charts.BehaviorPosition.bottom,
-          horizontalFirst: false,
-          desiredMaxRows:
-              deviceInfo.orientation == Orientation.landscape ? 2 : 3,
-          showMeasures: true,
-          legendDefaultMeasure: charts.LegendDefaultMeasure.firstValue,
-          measureFormatter: (measure) {
-            return (measure / worldRecord.timeline[0].cases * 100)
-                    .toStringAsFixed(1) +
-                "%";
-          },
-        ),
-      ],
-    );
+    return data.length > 1
+        ? charts.PieChart(
+            [
+              charts.Series<CoronaRecord, String>(
+                data: data,
+                id: "Cases",
+                domainFn: (datum, _) => datum.country,
+                measureFn: (datum, _) => datum.timeline.cases,
+                // colorFn: (_, index) => colors[index],
+              )
+            ],
+            animate: true,
+            behaviors: [
+              charts.DatumLegend(
+                position: charts.BehaviorPosition.bottom,
+                horizontalFirst: false,
+                desiredMaxRows:
+                    deviceInfo.orientation == Orientation.landscape ? 2 : 3,
+                showMeasures: true,
+                legendDefaultMeasure: charts.LegendDefaultMeasure.firstValue,
+                measureFormatter: (measure) {
+                  return (measure / worldRecord.timeline[0].cases * 100)
+                          .toStringAsFixed(1) +
+                      "%";
+                },
+              ),
+            ],
+          )
+        : Center(
+            child: CircularProgressIndicator(),
+          );
   }
 }

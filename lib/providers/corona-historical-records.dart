@@ -13,7 +13,16 @@ import '../constants/constants.dart' as Constants;
 class CoronaHistoricalRecords with ChangeNotifier {
   List<CoronaHistoricalRecord> _records = [];
   List<CoronaRecord> _latestRecords = [];
-  CoronaHistoricalRecord worldRecord;
+  CoronaHistoricalRecord _worldRecord;
+
+  CoronaHistoricalRecord get worldRecord {
+    return _worldRecord;
+  }
+
+  void seTworldRecord(CoronaHistoricalRecord record) {
+    _worldRecord = record;
+    notifyListeners();
+  }
 
   CoronaHistoricalRecords() {
     fetchAndSetRecords();
@@ -35,9 +44,22 @@ class CoronaHistoricalRecords with ChangeNotifier {
     var index = _records.indexWhere((element) => element.id == newRecord.id);
     _records[index] = newRecord;
 
-    var i = _latestRecords
-        .indexWhere((element) => element.id == newRecord.latestRecord.id);
-    _latestRecords[i] = newRecord.latestRecord;
+    // var i = _latestRecords
+    //     .indexWhere((element) => element.id == newRecord.latestRecord.id);
+    // _latestRecords[i] = newRecord.latestRecord;
+
+    _latestRecords = _latestRecords
+        .where((element) => element.id != newRecord.latestRecord.id)
+        .toList();
+
+    var placedIndex = _latestRecords.indexWhere((element) =>
+        element.timeline.cases <= newRecord.latestRecord.timeline.cases);
+
+    if (placedIndex == -1) {
+      _latestRecords.add(newRecord.latestRecord);
+    } else {
+      _latestRecords.insert(placedIndex, newRecord.latestRecord);
+    }
 
     notifyListeners();
   }
@@ -67,7 +89,7 @@ class CoronaHistoricalRecords with ChangeNotifier {
               convert.jsonDecode(responses[1].body));
 
       _records = countryRecords;
-      this.worldRecord = worldRecord;
+      this._worldRecord = worldRecord;
 
       _latestRecords = _records.map((e) => e.latestRecord).toList()
         ..sort((a, b) => b.timeline.cases - a.timeline.cases);
